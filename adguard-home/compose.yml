@@ -1,0 +1,37 @@
+version: "3.9"
+ 
+networks:
+  # With a macvlan, AdGuard Home Docker service would act as a separate machine thereby eliminating any port conflicts.
+  dockervlan:
+    name: dockervlan
+    driver: macvlan
+    driver_opts:
+      parent: ovs_eth0 # using ifconfig to get which parent is the host network used
+    ipam:
+      config:
+        - subnet: "192.168.0.0/24"
+          ip_range: "192.168.0.225/32"
+          gateway: "192.168.0.1"
+  
+services:
+  # AdGuard Home - DNS AdBlocking
+  adguardhome:
+    container_name: adguardhome
+    image: adguard/adguardhome
+    restart: always
+    networks:
+      dockervlan:
+        ipv4_address: 192.168.0.50 # IP address inside the defined range
+    ports:
+      - 53:53/udp
+      - 67:67/udp 
+      - 68:68/tcp 
+      - 68:68/udp 
+      - 80:80/tcp # AdGuard Home web interface
+      - 443:443/tcp 
+      - 853:853/tcp 
+      - 3000:3000/tcp # AdGuard Home
+    volumes:
+      - $AGH_VOLUME/conf:/opt/adguardhome/conf
+      - $AGH_VOLUME/work:/opt/adguardhome/work
+      # - $DOCKERDIR/shared/certs/example.com:/certs # optional: if you have your own SSL certs
