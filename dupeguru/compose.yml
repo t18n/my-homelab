@@ -1,0 +1,16 @@
+services:
+  dupeguru:
+    image: jlesage/dupeguru
+    container_name: dupeguru
+    ports:
+      - "5800:5800"
+    volumes:
+      - ./docker/volumes/dupeguru/config:/config:rw
+      - $PHOTO_VOLUME:/storage:rw
+    environment:
+      - PUID=1026
+      - PGID=100
+      - USER_ID=1026
+      - GROUP_ID=100
+      - VERSION=latest
+      - TZ=Europe/Copenhagen
