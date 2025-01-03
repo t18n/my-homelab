@@ -1,0 +1,14 @@
+version: "3.9"
+
+services:
+  traggo:
+    image: traggo/server:latest
+    environment:
+      TRAGGO_DEFAULT_USER_NAME: $TRAGGO_DEFAULT_USER_NAME
+      TRAGGO_DEFAULT_USER_PASS: $TRAGGO_DEFAULT_USER_PASS
+
+      TRAGGO_LOG_LEVEL: debug
+    ports:
+      - 3030:3030
+    volumes:
+      - $TRAGGO_VOLUME:/opt/traggo/data
