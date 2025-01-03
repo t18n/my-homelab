@@ -1,0 +1,86 @@
+version: "3.7"
+
+services:
+  photostructure:
+    # You can run alpha, beta, or stable builds. See
+    # <https://forum.photostructure.com/t/274> for details.
+    image: photostructure/server:stable
+    container_name: photostructure
+
+    # See https://docs.docker.com/compose/compose-file/#restart
+    restart: unless-stopped
+
+    # PhotoStructure needs some time to close the database cleanly.
+    # (It should normally only take seconds, but 2m accounts for
+    # a spun-down, remote, old HDD hosting a very large library):
+    stop_grace_period: 2m
+
+    volumes:
+      # /ps/library is where your PhotoStructure Library will be stored.
+      # It must be readable, writable, and have sufficient free space.
+      # If it is a remote volume, uncomment the PS_FORCE_LOCAL_DB_REPLICA
+      # environment line below.
+
+      - type: bind
+        source: /volume1/homes/user/PhotoStructure
+        target: /ps/library
+
+      # NOTE: if /ps/library is a fast local disk, you can delete 
+      # the other /ps/... bind mounts below.
+      
+      # /ps/tmp must be fast, local disk with many gigabytes free.
+      # PhotoStructure will use this directory for file caching
+      # and for storing a temporary database replica when your
+      # library is on a remote volume.
+
+      - type: bind
+        source: "./docker/photostructure/tmp"
+        target: /ps/tmp
+
+      # /ps/config stores your "system settings"
+
+      - type: bind
+        source: "./docker/photostructure/config"
+        target: /ps/config
+
+      # /ps/logs stores PhotoStructure log files.
+
+      - type: bind
+        source: "./docker/photostructure/logs"
+        target: /ps/logs
+
+      # Example additional directories to import into your library.
+      # Add as many as you'd like, or remove one or both of these examples.
+
+      # Set the target to /media/... or /mnt/...
+      # (the name doesn't matter, as long as it is unique)
+
+      - type: bind
+        source: "/volume1/homes/user/SynoPhotos.bak"
+        target: /var/photos-backup
+
+      # Here's another example directory to scan:
+      # - type: bind
+      #   source: /home/jamie/Pictures
+      #   target: /var/home-jamie-pictures
+
+    ports:
+      - 1787:1787/tcp
+
+    environment:
+      # PhotoStructure has _tons_ of settings. See
+      # <https://photostructure.com/faq/environment-variables/>
+
+      # This tells PhotoStructure to only log errors, which is the default:
+      - "PS_LOG_LEVEL=error"
+
+      # If PhotoStructure is refusing to spin up, uncomment these lines to see what's going on:
+      - "PS_LOG_LEVEL=info"
+      - "PS_LOG_STDOUT=true"
+
+      - "TZ=Europe/Copenhagen" # < CHANGE THIS LINE
+
+      # The userid and groupid to run PhotoStructure as.
+      # See <https://phstr.com/puid> for details
+      - "PUID=1026" # < CHANGE THIS LINE: replace 1000 with the result of `id -u`
+      - "PGID=100" # < CHANGE THIS LINE: replace 1000 with the result of `id -g`

@@ -6,5 +6,5 @@ services:
     ports:
       - "3032:5800"
     volumes:
-      - "/volume1/docker/volumes/downloaders/jdownloader-2:/config:rw"
+      - "./docker/downloaders/jdownloader-2:/config:rw"
       - "./docker/Downloads:/output:rw"
