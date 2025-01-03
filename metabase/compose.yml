@@ -1,0 +1,35 @@
+version: "3.9"
+
+services:
+  metabase:
+    image: metabase/metabase:latest
+    container_name: metabase
+    hostname: metabase
+    volumes:
+      - $METABASE_VOLUME/metabase:/dev/random:ro
+    ports:
+      - 3007:3000
+    environment:
+      MB_DB_TYPE: postgres
+      MB_DB_HOST: metabase_postgres
+      MB_DB_PORT: 5432
+      MB_DB_DBNAME: $POSTGRES_DB
+      MB_DB_USER: $POSTGRES_USER
+      MB_DB_PASS: $POSTGRES_PASSWORD
+
+    healthcheck:
+      test: curl --fail -I http://localhost:3000/api/health || exit 1
+      interval: 15s
+      timeout: 5s
+      retries: 5
+  postgres:
+    image: postgres:latest
+    container_name: metabase_postgres
+    hostname: postgres
+    environment:
+      POSTGRES_USER: $POSTGRES_USER
+      POSTGRES_DB: $POSTGRES_DB
+      POSTGRES_PASSWORD: $POSTGRES_PASSWORD
+    volumes:
+      - $METABASE_VOLUME/postgres:/var/lib/postgresql/data
+
