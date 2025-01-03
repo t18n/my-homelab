@@ -1,0 +1,15 @@
+version: '3.9'
+
+services:
+  openproject:
+    image: openproject/openproject:14
+    container_name: openproject
+    ports:
+      - "3012:80"
+    environment:
+      OPENPROJECT_HOST__NAME: $OPENPROJECT_HOST__NAME
+      OPENPROJECT_SECRET_KEY_BASE: $OPENPROJECT_SECRET_KEY_BASE
+    volumes:
+      - $VOLUME_OPENPROJECT/pgdata:/var/openproject/pgdata
+      - $VOLUME_OPENPROJECT/assets:/var/openproject/assets
+    restart: unless-stopped
