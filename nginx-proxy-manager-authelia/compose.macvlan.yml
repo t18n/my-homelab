@@ -1,0 +1,52 @@
+version: "3.9"
+
+services:
+  nginx:
+    container_name: "nginx-proxy-manager"
+    image: "jc21/nginx-proxy-manager:2.12.2"
+    restart: "unless-stopped"
+    networks:
+      macvlan_net:
+        ipv4_address: ${MACVLAN_IP}
+    ports:
+      - "80:80" # Public HTTP Port
+      - "443:443" # Public HTTPS Port
+      - "81:81" # Admin Web Port
+      # Add any other Stream port you want to expose
+      # - '21:21' # FTP
+
+    volumes:
+      - "${VOLUME_NGINX}/nginx-proxy-manager/data:/data"
+      - "${VOLUME_NGINX}/nginx-proxy-manager/letsencrypt:/etc/letsencrypt"
+    environment:
+      TZ: ${TZ}
+
+  authelia:
+    container_name: "authelia"
+    image: "authelia/authelia"
+    restart: "unless-stopped"
+    # networks:
+    #   macvlan_net:
+    #     ipv4_address: ${MACVLAN_IP}
+    volumes:
+      - "${VOLUME_NGINX}/authelia/config:/config"
+    environment:
+      TZ: ${TZ}
+
+  whoami:
+    container_name: "whoami"
+    image: "docker.io/traefik/whoami"
+    restart: "unless-stopped"
+    environment:
+      TZ: ${TZ}
+
+networks:
+  macvlan_net:
+    driver: macvlan
+    driver_opts:
+      parent: ovs_eth0 # Replace with your own host interface
+    ipam:
+      config:
+        - subnet: "192.168.0.0/24"
+          ip_range: "192.168.0.225/32"
+          gateway: "192.168.0.1"

@@ -1,0 +1,36 @@
+version: '3.9'
+
+services:
+  nginx:
+    container_name: 'nginx-proxy-manager'
+    image: 'jc21/nginx-proxy-manager:2.12.2'
+    restart: 'unless-stopped'
+    ports:
+      - '80:80' # Public HTTP Port
+      - '443:443' # Public HTTPS Port
+      - '81:81' # Admin Web Port
+      # Add any other Stream port you want to expose
+      # - '21:21' # FTP
+
+    volumes:
+      - '${VOLUME_NGINX}/nginx-proxy-manager/data:/data'
+      - '${VOLUME_NGINX}/nginx-proxy-manager/letsencrypt:/etc/letsencrypt'
+      # - '${VOLUME_NGINX}/nginx/snippets:/snippets' # Can use nginx-proxy-manager/data/nginx/custom
+    environment:
+      TZ: ${TZ}
+
+  authelia:
+    container_name: 'authelia'
+    image: 'authelia/authelia'
+    restart: 'unless-stopped'
+    volumes:
+      - '${VOLUME_NGINX}/authelia/config:/config'
+    environment:
+      TZ: ${TZ}
+
+  whoami:
+    container_name: 'whoami'
+    image: 'docker.io/traefik/whoami'
+    restart: 'unless-stopped'
+    environment:
+      TZ: ${TZ}
