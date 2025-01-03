@@ -1,0 +1,10 @@
+version: "3.9"
+
+services:
+  jdownloader-2:
+    image: jlesage/jdownloader-2
+    ports:
+      - "3032:5800"
+    volumes:
+      - "/volume1/docker/volumes/downloaders/jdownloader-2:/config:rw"
+      - "./docker/Downloads:/output:rw"
