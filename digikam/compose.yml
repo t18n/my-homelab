@@ -1,0 +1,15 @@
+services:
+  digikam:
+    image: lscr.io/linuxserver/digikam:latest
+    container_name: digikam
+    environment:
+      - PUID=1026
+      - PGID=100
+      - TZ=Europe/Copenhagen
+    volumes:
+      - ./docker/volumes/digikam/config:/config
+      - $PHOTO_VOLUME:/config/photos
+    ports:
+      - 5900:3000
+      - 5901:3001 
+    restart: unless-stopped
